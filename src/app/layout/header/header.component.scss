@@ -1,0 +1,119 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 72px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background var(--transition), box-shadow var(--transition);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.header-content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 24px;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.logo-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: var(--primary);
+}
+
+.logo-text {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+// Active nav styling - Rounded Pill
+a {
+  &.active {
+    background: #EEF2FF;
+    color: var(--primary);
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 10px 18px;
+  }
+}
+
+// Dark mode header
+[data-theme='dark'] .app-header {
+  background: rgba(17, 24, 39, 0.85);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+// Theme toggle button
+.header-actions {
+  button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: background var(--transition);
+
+    &:hover {
+      background: rgba(79, 70, 229, 0.08);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 16px;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+}
+
+.mobile-menu {
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}

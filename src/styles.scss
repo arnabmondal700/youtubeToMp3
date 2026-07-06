@@ -1,0 +1,111 @@
+/* Global Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Colors */
+  --bg-color: #F8F9FC;
+  --card-bg: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --accent: #FF4D4F;
+
+  /* Typography Scale */
+  --font-h1: 56px;
+  --font-h2: 42px;
+  --font-h3: 30px;
+  --font-body: 18px;
+  --font-small: 15px;
+  --line-height: 1.6;
+
+  /* Spacing Scale (8px based) */
+  --space-8: 8px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+
+  /* Border Radius */
+  --radius-btn: 12px;
+  --radius-input: 12px;
+  --radius-card: 18px;
+  --radius-modal: 20px;
+  --radius-hero: 24px;
+
+  /* Shadows */
+  --shadow-primary: 0 10px 40px rgba(0,0,0,.08);
+  --shadow-hover: 0 18px 60px rgba(0,0,0,.12);
+
+  /* Legacy */
+  --border-radius: 16px;
+  --shadow: 0 10px 30px rgba(0,0,0,.08);
+  --transition: 250ms ease;
+}
+
+[data-theme='dark'] {
+  --bg-color: #111827;
+  --card-bg: #1F2937;
+  --text-primary: #FFFFFF;
+  --text-secondary: #D1D5DB;
+  --primary: #6366F1;
+  --primary-hover: #4F46E5;
+  --accent: #FF4D4F;
+  --shadow: 0 10px 30px rgba(0,0,0,.3);
+  --shadow-primary: 0 10px 40px rgba(0,0,0,.3);
+  --shadow-hover: 0 18px 60px rgba(0,0,0,.4);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: var(--font-body);
+  line-height: var(--line-height);
+  color: var(--text-primary);
+  background: var(--bg-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Dark Mode Global Styles
+[data-theme='dark'] {
+  html, body {
+    background: var(--bg-color);
+    color: var(--text-primary);
+  }
+
+  body {
+    background: var(--bg-color);
+  }
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

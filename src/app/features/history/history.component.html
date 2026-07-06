@@ -1,0 +1,70 @@
+<div class="history-page">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Conversion History</h1>
+        <p class="page-description">View and manage your previous conversions.</p>
+      </div>
+      @if (history.length > 0) {
+        <button mat-raised-button color="warn" (click)="clearAll()">
+          <mat-icon>delete_sweep</mat-icon>
+          Clear All
+        </button>
+      }
+    </div>
+
+    @if (history.length === 0) {
+      <mat-card class="empty-state">
+        <mat-card-content>
+          <div class="empty-content">
+            <mat-icon class="empty-icon">history</mat-icon>
+            <h3>No conversion history yet</h3>
+            <p>Start converting YouTube videos to MP3 and they will appear here.</p>
+            <a mat-raised-button color="primary" routerLink="/">Start Converting</a>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <div class="history-table-wrapper">
+        <table mat-table [dataSource]="history" class="history-table">
+          <ng-container matColumnDef="thumbnail">
+            <th mat-header-cell *matHeaderCellDef>Thumbnail</th>
+            <td mat-cell *matCellDef="let item">
+              <img [src]="item.thumbnail" alt="Thumbnail" class="history-thumbnail"/>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Title</th>
+            <td mat-cell *matCellDef="let item">{{ item.title }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="quality">
+            <th mat-header-cell *matHeaderCellDef>Quality</th>
+            <td mat-cell *matCellDef="let item">{{ getQualityLabel(item.quality) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let item">{{ formatDate(item.date) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let item">
+              <button mat-icon-button color="primary" (click)="download(item.downloadUrl, item.title)" aria-label="Download">
+                <mat-icon>download</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteItem(item.id)" aria-label="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    }
+  </div>
+</div>

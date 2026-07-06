@@ -1,0 +1,163 @@
+.history-page {
+  padding: 40px 0;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .page-title {
+    font-size: 36px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .page-description {
+    color: #666;
+    font-size: 16px;
+  }
+
+  .empty-state {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 48px 24px;
+
+    .empty-content {
+      .empty-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #ccc;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
+      }
+
+      p {
+        color: #666;
+        margin-bottom: 24px;
+      }
+    }
+  }
+
+  .history-table-wrapper {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .history-table {
+    width: 100%;
+    min-width: 600px;
+
+    th.mat-header-cell,
+    td.mat-cell {
+      padding: 16px;
+    }
+
+    th.mat-header-cell {
+      background: #f5f5f5;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    td.mat-cell {
+      border-bottom: 1px solid #eee;
+    }
+
+    tr.mat-row:hover {
+      background: #fafafa;
+    }
+  }
+
+  .history-thumbnail {
+    width: 80px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+}
+
+[data-theme='dark'] {
+  .history-page {
+    .page-title {
+      color: #fff;
+    }
+
+    .page-description {
+      color: #aaa;
+    }
+
+    .empty-state {
+      background: #2d2d2d;
+
+      .empty-content {
+        h3 {
+          color: #fff;
+        }
+
+        p {
+          color: #aaa;
+        }
+      }
+    }
+
+    .history-table-wrapper {
+      background: #2d2d2d;
+
+      .history-table {
+        th.mat-header-cell {
+          background: #1e1e1e;
+          color: #fff;
+          border-bottom-color: #444;
+        }
+
+        td.mat-cell {
+          border-bottom-color: #444;
+          color: #eee;
+        }
+
+        tr.mat-row:hover {
+          background: #333;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .history-page {
+    .page-header {
+      flex-direction: column;
+    }
+
+    .history-table {
+      min-width: auto;
+
+      th.mat-header-cell,
+      td.mat-cell {
+        padding: 12px 8px;
+        font-size: 14px;
+      }
+
+      .history-thumbnail {
+        width: 60px;
+        height: 34px;
+      }
+    }
+  }
+}

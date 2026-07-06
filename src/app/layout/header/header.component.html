@@ -1,0 +1,34 @@
+<header class="app-header">
+  <div class="header-content">
+    <a routerLink="/" class="logo-link">
+      <mat-icon class="logo-icon">music_note</mat-icon>
+      <span class="logo-text">YouTube to MP3</span>
+    </a>
+
+    <nav class="desktop-nav">
+      <a mat-button [routerLink]="['/faq']" routerLinkActive="active">FAQ</a>
+      <a mat-button [routerLink]="['/about']" routerLinkActive="active">About</a>
+    </nav>
+
+    <div class="header-actions">
+      <button mat-icon-button (click)="toggleTheme()" [attr.aria-label]="'Toggle ' + (theme() === 'light' ? 'dark' : 'light') + ' mode'">
+        <mat-icon>{{ theme() === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
+      </button>
+
+      <button mat-icon-button class="mobile-menu-btn" [matMenuTriggerFor]="mobileMenu">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <mat-menu #mobileMenu="matMenu" class="mobile-menu">
+    <a mat-menu-item [routerLink]="['/faq']" routerLinkActive="active">
+      <mat-icon>help_outline</mat-icon>
+      <span>FAQ</span>
+    </a>
+    <a mat-menu-item [routerLink]="['/about']" routerLinkActive="active">
+      <mat-icon>info</mat-icon>
+      <span>About</span>
+    </a>
+  </mat-menu>
+</header>

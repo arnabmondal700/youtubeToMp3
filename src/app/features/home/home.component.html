@@ -1,0 +1,181 @@
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Convert YouTube Videos to MP3</h1>
+    <p class="hero-description">Download high-quality audio instantly.<br>Fast, free and secure.</p>
+    <button class="cta-button" (click)="scrollToConverter()">
+      Start Converting
+    </button>
+  </div>
+</section>
+
+<!-- Converter Section -->
+<section class="converter-section" id="converter">
+  <div class="converter-card">
+    <form [formGroup]="convertForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <mat-form-field appearance="outline" class="full-width url-field">
+          <mat-label>YouTube URL</mat-label>
+          <input matInput formControlName="url" placeholder="https://www.youtube.com/watch?v=..."/>
+          <mat-icon matSuffix>link</mat-icon>
+          @if (convertForm.get('url')?.invalid && convertForm.get('url')?.touched) {
+            <mat-error>Please enter a valid YouTube URL</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-group">
+        <mat-form-field appearance="outline" class="full-width quality-field">
+          <mat-label>Audio Quality</mat-label>
+          <mat-select formControlName="quality">
+            <mat-option value="64">64 kbps - Low Quality</mat-option>
+            <mat-option value="128">128 kbps - Medium Quality</mat-option>
+            <mat-option value="192">192 kbps - High Quality</mat-option>
+            <mat-option value="256">256 kbps - Very High Quality</mat-option>
+            <mat-option value="320">320 kbps - Best Quality</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="convertForm.invalid || processing" class="convert-button">
+        <mat-icon>download</mat-icon>
+        {{ processing ? 'Converting...' : 'Convert to MP3' }}
+      </button>
+    </form>
+  </div>
+
+  @if (processing) {
+    <div class="progress-card">
+      <div class="progress-container">
+        <div class="spinner-wrapper">
+          <mat-spinner></mat-spinner>
+        </div>
+        <p class="progress-text">Processing your video...</p>
+        <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <app-error-card [message]="error" actionLabel="Try Again" (onAction)="reset()"></app-error-card>
+  }
+
+  @if (result) {
+    <mat-card class="result-card">
+      <mat-card-content>
+        <div class="result-content">
+          <img [src]="result.thumbnail" alt="Video thumbnail" class="result-thumbnail"/>
+          <div class="result-info">
+            <h3 class="result-title">{{ result.title }}</h3>
+            <div class="result-meta">
+              <span><mat-icon>timer</mat-icon> {{ result.duration }}</span>
+              <span><mat-icon>storage</mat-icon> {{ result.size }}</span>
+            </div>
+            <div class="result-actions">
+              <button mat-raised-button color="primary" (click)="download()">
+                <mat-icon>download</mat-icon>
+                Download MP3
+              </button>
+              <button mat-button (click)="reset()">Convert Another</button>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>
+
+<!-- Why Choose Us -->
+<section class="features">
+  <div class="container">
+    <h2 class="section-title">Why Choose Us</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <mat-icon class="feature-icon">bolt</mat-icon>
+        <h3>Fast Conversion</h3>
+        <p>Convert videos in seconds with our optimized processing engine.</p>
+      </div>
+
+      <div class="feature-card">
+        <mat-icon class="feature-icon">high_quality</mat-icon>
+        <h3>High Quality MP3</h3>
+        <p>Choose audio quality from 64kbps to 320kbps for the best experience.</p>
+      </div>
+
+      <div class="feature-card">
+        <mat-icon class="feature-icon">shield</mat-icon>
+        <h3>Secure & Private</h3>
+        <p>Your data is never stored. Conversions are processed securely.</p>
+      </div>
+
+      <div class="feature-card">
+        <mat-icon class="feature-icon">devices</mat-icon>
+        <h3>Mobile Friendly</h3>
+        <p>Works perfectly on all devices - desktop, tablet, and mobile.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works">
+  <div class="container">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-circle">
+          <span class="step-number">1</span>
+        </div>
+        <mat-icon class="step-icon">link</mat-icon>
+        <h3>Paste URL</h3>
+        <p>Copy the YouTube video URL and paste it in the converter.</p>
+      </div>
+
+      <div class="step-connector">
+        <mat-icon>arrow_downward</mat-icon>
+      </div>
+
+      <div class="step-card">
+        <div class="step-circle">
+          <span class="step-number">2</span>
+        </div>
+        <mat-icon class="step-icon">settings</mat-icon>
+        <h3>Choose Quality</h3>
+        <p>Select your preferred audio quality from 64kbps to 320kbps.</p>
+      </div>
+
+      <div class="step-connector">
+        <mat-icon>arrow_downward</mat-icon>
+      </div>
+
+      <div class="step-card">
+        <div class="step-circle">
+          <span class="step-number">3</span>
+        </div>
+        <mat-icon class="step-icon">download</mat-icon>
+        <h3>Download MP3</h3>
+        <p>Click download and save the MP3 file to your device.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Preview -->
+<section class="faq-preview">
+  <div class="container">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <mat-accordion class="faq-accordion">
+      @for (faq of faqs; track faq.question) {
+        <mat-expansion-panel class="faq-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="faq-question">{{ faq.question }}</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p class="faq-answer">{{ faq.answer }}</p>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+    <div class="text-center">
+      <a mat-stroked-button color="primary" routerLink="/faq" class="view-all-btn">View All FAQs</a>
+    </div>
+  </div>
+</section>
