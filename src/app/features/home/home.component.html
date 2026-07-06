@@ -16,7 +16,11 @@
       <div class="form-group">
         <mat-form-field appearance="outline" class="full-width url-field">
           <mat-label>YouTube URL</mat-label>
-          <input matInput formControlName="url" placeholder="https://www.youtube.com/watch?v=..."/>
+          <input 
+            matInput 
+            formControlName="url" 
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
           <mat-icon matSuffix>link</mat-icon>
           @if (convertForm.get('url')?.invalid && convertForm.get('url')?.touched) {
             <mat-error>Please enter a valid YouTube URL</mat-error>
@@ -37,30 +41,50 @@
         </mat-form-field>
       </div>
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="convertForm.invalid || processing" class="convert-button">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit" 
+        [disabled]="convertForm.invalid || isFormDisabled"
+        class="convert-button"
+      >
         <mat-icon>download</mat-icon>
-        {{ processing ? 'Converting...' : 'Convert to MP3' }}
+        @if (isProcessing()) {
+          {{ conversionState === ConversionState.VALIDATING ? 'Validating...' : 'Converting...' }}
+        } @else {
+          Convert to MP3
+        }
       </button>
     </form>
   </div>
 
-  @if (processing) {
+  @if (isProcessing()) {
     <div class="progress-card">
       <div class="progress-container">
         <div class="spinner-wrapper">
-          <mat-spinner></mat-spinner>
+          <mat-spinner [diameter]="50" [color]="'primary'"></mat-spinner>
         </div>
-        <p class="progress-text">Processing your video...</p>
-        <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+        <p class="progress-text">{{ progress.stage || 'Processing...' }}</p>
+        <p class="progress-percentage">{{ progress.percentage }}%</p>
+        <mat-progress-bar 
+          mode="determinate" 
+          [value]="progress.percentage" 
+          color="primary"
+          class="progress-bar"
+        ></mat-progress-bar>
       </div>
     </div>
   }
 
-  @if (error) {
-    <app-error-card [message]="error" actionLabel="Try Again" (onAction)="reset()"></app-error-card>
+  @if (hasError()) {
+    <app-error-card 
+      [message]="errorMessage || 'An error occurred during conversion.'" 
+      actionLabel="Try Again" 
+      (onAction)="retry()"
+    ></app-error-card>
   }
 
-  @if (result) {
+  @if (hasResult() && result) {
     <mat-card class="result-card">
       <mat-card-content>
         <div class="result-content">
@@ -72,11 +96,22 @@
               <span><mat-icon>storage</mat-icon> {{ result.size }}</span>
             </div>
             <div class="result-actions">
-              <button mat-raised-button color="primary" (click)="download()">
-                <mat-icon>download</mat-icon>
+              <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="download()"
+                class="download-button"
+              >
+                <mat-icon>file_download</mat-icon>
                 Download MP3
               </button>
-              <button mat-button (click)="reset()">Convert Another</button>
+              <button 
+                mat-button 
+                (click)="reset()"
+                [disabled]="isFormDisabled"
+              >
+                Convert Another
+              </button>
             </div>
           </div>
         </div>

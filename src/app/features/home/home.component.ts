@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ConverterService } from '../../core/services/converter.service';
@@ -12,9 +12,15 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatAccordion } from '@angular/material/expansion';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ErrorCardComponent } from '../../shared/components/error-card/error-card.component';
+import { AsyncPipe } from '@angular/common';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntil, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { ConversionState, ConversionResult, ConversionProgress } from '../../core/models/conversion.models';
 
 @Component({
   selector: 'app-home',
@@ -37,23 +43,59 @@ import { ErrorCardComponent } from '../../shared/components/error-card/error-car
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
+  ConversionState = ConversionState;
+  private destroy$ = new Subject<void>();
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
     private converterService: ConverterService,
     private historyService: HistoryService,
-    private downloadService: DownloadService
+    private downloadService: DownloadService,
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {
     this.convertForm = this.fb.group({
       url: ['', [Validators.required, Validators.pattern(/^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[\w-]+/)]],
       quality: [192, Validators.required]
     });
+
+    // Subscribe to state changes in constructor (injection context)
+    toObservable(this.converterService.conversionState$).pipe(
+      takeUntil(this.destroy$),
+      tap((state) => {
+        this.conversionState = state;
+        // Disable form controls during processing
+        const shouldDisable = state === ConversionState.VALIDATING || 
+                              state === ConversionState.PROCESSING;
+        
+        if (shouldDisable) {
+          this.convertForm.get('url')?.disable();
+          this.convertForm.get('quality')?.disable();
+        } else {
+          this.convertForm.get('url')?.enable();
+          this.convertForm.get('quality')?.enable();
+        }
+        
+        // Trigger change detection to avoid ExpressionChanged error
+        this.cdr.markForCheck();
+      })
+    ).subscribe();
+
+    toObservable(this.converterService.conversionProgress$).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((progress: ConversionProgress) => {
+      this.progress = { stage: progress.stage, percentage: progress.progress };
+      this.cdr.markForCheck();
+    });
   }
 
   convertForm: any;
-  processing = false;
-  result: { title: string; thumbnail: string; duration: string; size: string; downloadUrl: string; } | null = null;
-  error: string | null = null;
+  result: ConversionResult | null = null;
+  errorMessage: string | null = null;
+  conversionState: ConversionState = ConversionState.IDLE;
+  progress = { stage: '', percentage: 0 };
+  isFormDisabled = false;
 
   faqs = [
     {
@@ -74,9 +116,6 @@ export class HomeComponent {
     }
   ];
 
-  getProcessing(): boolean {
-    return this.converterService.processing$();
-  }
 
   scrollToConverter(): void {
     const element = document.getElementById('converter');
@@ -86,38 +125,61 @@ export class HomeComponent {
   }
 
   onSubmit(): void {
-    if (this.convertForm.invalid || this.processing) return;
-
-    this.processing = true;
-    this.error = null;
-    this.result = null;
+    if (this.convertForm.invalid || this.isProcessing()) return;
 
     const { url, quality } = this.convertForm.value;
 
     if (!url || !quality) return;
 
+    this.errorMessage = null;
+    this.result = null;
+
     this.converterService.convert({ url, quality }).subscribe({
       next: (result) => {
-        this.processing = false;
         this.result = result;
-        this.historyService.add({
-          title: result.title,
-          thumbnail: result.thumbnail,
-          quality: quality as number,
-          downloadUrl: result.downloadUrl
-        });
+        if (quality && result) {
+          this.historyService.add({
+            title: result.title,
+            thumbnail: result.thumbnail,
+            quality: quality as number,
+            downloadUrl: result.downloadUrl
+          });
+        }
       },
       error: (err) => {
-        this.processing = false;
-        this.error = err?.message || 'Conversion failed. Please try again.';
+        this.errorMessage = err?.message || 'Conversion failed. Please try again.';
       }
     });
+  }
+
+  isProcessing(): boolean {
+    return this.conversionState === ConversionState.VALIDATING ||
+           this.conversionState === ConversionState.PROCESSING;
+  }
+
+  isIdle(): boolean {
+    return this.conversionState === ConversionState.IDLE;
+  }
+
+  hasError(): boolean {
+    return this.conversionState === ConversionState.ERROR;
+  }
+
+  hasResult(): boolean {
+    return this.conversionState === ConversionState.SUCCESS;
   }
 
   reset(): void {
     this.convertForm.reset({ quality: 192 });
     this.result = null;
-    this.error = null;
+    this.errorMessage = null;
+    this.progress = { stage: '', percentage: 0 };
+    this.converterService.reset();
+  }
+
+  retry(): void {
+    this.errorMessage = null;
+    this.converterService.retry();
   }
 
   download(): void {
@@ -126,7 +188,21 @@ export class HomeComponent {
       const totalSeconds = durationMatch
         ? parseInt(durationMatch[1]) * 60 + parseInt(durationMatch[2])
         : 225;
-      this.downloadService.downloadAsMp3(this.result.title, totalSeconds);
+
+      this.snackBar.open('Preparing download...', 'Close', { duration: 2000 });
+
+      this.downloadService.downloadAsMp3(this.result.title, totalSeconds).subscribe({
+        complete: () => {
+          setTimeout(() => {
+            this.snackBar.open('Download started successfully!', 'Close', { duration: 3000 });
+          }, 100);
+        }
+      });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

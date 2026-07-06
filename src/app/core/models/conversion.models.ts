@@ -14,6 +14,11 @@ export interface ConversionResult {
   error?: string;
 }
 
+export interface ConversionProgress {
+  stage: string;
+  progress: number;
+}
+
 export interface HistoryItem {
   id: string;
   title: string;
@@ -26,3 +31,11 @@ export interface HistoryItem {
 export type Theme = 'light' | 'dark';
 
 export type AudioQuality = 64 | 128 | 192 | 256 | 320;
+
+export enum ConversionState {
+  IDLE = 'IDLE',
+  VALIDATING = 'VALIDATING',
+  PROCESSING = 'PROCESSING',
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR'
+}

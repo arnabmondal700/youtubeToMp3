@@ -1,16 +1,47 @@
 import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { delay, tap, finalize } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DownloadService {
 
-  downloadAsMp3(title: string, durationSeconds: number): void {
+  downloadAsMp3(title: string, durationSeconds: number): Observable<void> {
     const sampleRate = 44100;
     const numSamples = sampleRate * Math.min(durationSeconds, 30); // Max 30 seconds
     const numChannels = 2;
 
-    // Generate a simple sine wave
+    // Return observable to track download progress
+    return of(undefined).pipe(
+      delay(300),
+      tap(() => console.log('Starting download generation...')),
+      tap(() => {
+        // Generate audio samples
+        const samples = this.generateAudioSamples(numSamples, numChannels, durationSeconds, sampleRate);
+        
+        // Encode as WAV
+        const wavBuffer = this.encodeWav(samples, sampleRate);
+        const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${this.sanitizeFilename(title)}.wav`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up the object URL after a delay
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }),
+      delay(700),
+      tap(() => console.log('Download completed')),
+      finalize(() => console.log('Download process finished'))
+    );
+  }
+
+  private generateAudioSamples(numSamples: number, numChannels: number, durationSeconds: number, sampleRate: number): Float32Array {
     const samples = new Float32Array(numSamples * numChannels);
     for (let i = 0; i < numSamples; i++) {
       const t = i / sampleRate;
@@ -31,21 +62,7 @@ export class DownloadService {
       samples[i * 2] = value * envelope;     // Left channel
       samples[i * 2 + 1] = value * envelope;  // Right channel
     }
-
-    // Encode as WAV
-    const wavBuffer = this.encodeWav(samples, sampleRate);
-    const blob = new Blob([wavBuffer], { type: 'audio/wav' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${this.sanitizeFilename(title)}.wav`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Clean up the object URL after a delay
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    return samples;
   }
 
   private sanitizeFilename(name: string): string {
